@@ -37,7 +37,6 @@ public class MainActivity extends Activity {
     private final String[] proteins = {
             "Carne bovina", "Lingui\u00e7a", "Frango", "Carne su\u00edna", "Cora\u00e7\u00e3o"
     };
-    private final String[] proteinIcons = {"\u25b1", "\u25ad", "\u2667", "\u25b1", "\u2661"};
     private final boolean[] selectedProteins = {true, true, true, false, false};
     private final int[] hungerGrams = {200, 450, 650};
     private final String[] hungerLabels = {"LEVE", "NORMAL", "FOME ALTA"};
@@ -81,28 +80,28 @@ public class MainActivity extends Activity {
         logo.setImageResource(getResources().getIdentifier("churracalc_logo", "drawable", getPackageName()));
         logo.setAdjustViewBounds(true);
         logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(-1, dp(104));
+        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(-1, dp(82));
         content.addView(logo, logoParams);
 
         TextView subtitle = text("Calcule a quantidade ideal para o seu churrasco", 15, MUTED, false);
         subtitle.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams subtitleParams = matchWrap();
-        subtitleParams.setMargins(0, 0, 0, dp(6));
+        subtitleParams.setMargins(0, 0, 0, dp(5));
         content.addView(subtitle, subtitleParams);
 
         LinearLayout peopleCard = sectionCard("\u25b3", "PESSOAS");
         LinearLayout peopleBox = new LinearLayout(this);
         peopleBox.setOrientation(LinearLayout.HORIZONTAL);
         peopleBox.setGravity(Gravity.CENTER);
-        peopleBox.setPadding(dp(8), dp(8), dp(8), dp(8));
+        peopleBox.setPadding(dp(8), dp(6), dp(8), dp(6));
         peopleBox.setBackground(rect(PANEL_DARK, LINE, 1, 4));
-        peopleBox.addView(counterPanel("ADULTOS", false), new LinearLayout.LayoutParams(0, dp(94), 1));
+        peopleBox.addView(counterPanel("ADULTOS", false), new LinearLayout.LayoutParams(0, dp(78), 1));
         View divider = new View(this);
         divider.setBackgroundColor(LINE);
-        LinearLayout.LayoutParams dividerParams = new LinearLayout.LayoutParams(dp(1), dp(82));
+        LinearLayout.LayoutParams dividerParams = new LinearLayout.LayoutParams(dp(1), dp(68));
         dividerParams.setMargins(dp(8), 0, dp(8), 0);
         peopleBox.addView(divider, dividerParams);
-        peopleBox.addView(counterPanel("CRIAN\u00c7AS", true), new LinearLayout.LayoutParams(0, dp(94), 1));
+        peopleBox.addView(counterPanel("CRIAN\u00c7AS", true), new LinearLayout.LayoutParams(0, dp(78), 1));
         peopleCard.addView(peopleBox, matchWrap());
         content.addView(peopleCard, cardParams());
 
@@ -159,8 +158,8 @@ public class MainActivity extends Activity {
 
         TextView calc = actionButton("\u25a3   CALCULAR CHURRASCO");
         calc.setOnClickListener(v -> showResult(calculate(), true));
-        LinearLayout.LayoutParams calcParams = new LinearLayout.LayoutParams(-1, dp(52));
-        calcParams.setMargins(0, dp(2), 0, 0);
+        LinearLayout.LayoutParams calcParams = new LinearLayout.LayoutParams(-1, dp(50));
+        calcParams.setMargins(0, 0, 0, 0);
         content.addView(calc, calcParams);
 
         swap(content, animated);
@@ -233,21 +232,21 @@ public class MainActivity extends Activity {
     private LinearLayout sectionCard(String icon, String title) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(dp(12), dp(8), dp(12), dp(10));
+        card.setPadding(dp(10), dp(6), dp(10), dp(8));
         card.setBackground(rect(PANEL, LINE, 1, 6));
 
         LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
         header.setGravity(Gravity.CENTER_VERTICAL);
-        TextView iconView = text(icon, 21, ORANGE, false);
+        TextView iconView = text(icon, 19, ORANGE, false);
         iconView.setGravity(Gravity.CENTER);
-        header.addView(iconView, new LinearLayout.LayoutParams(dp(28), dp(26)));
-        TextView titleView = text(title, 17, ORANGE, true);
-        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(-2, dp(28));
+        header.addView(iconView, new LinearLayout.LayoutParams(dp(26), dp(24)));
+        TextView titleView = text(title, 16, ORANGE, true);
+        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(-2, dp(25));
         titleParams.setMargins(dp(8), 0, 0, 0);
         header.addView(titleView, titleParams);
         LinearLayout.LayoutParams headerParams = matchWrap();
-        headerParams.setMargins(0, 0, 0, dp(6));
+        headerParams.setMargins(0, 0, 0, dp(5));
         card.addView(header, headerParams);
         return card;
     }
@@ -257,11 +256,11 @@ public class MainActivity extends Activity {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setGravity(Gravity.CENTER);
 
-        TextView label = text(title, 15, WHITE, true);
+        TextView label = text(title, 13, WHITE, true);
         label.setGravity(Gravity.CENTER);
         panel.addView(label, matchWrap());
 
-        TextView value = text(String.valueOf(isChild ? children : adults), 31, WHITE, true);
+        TextView value = text(String.valueOf(isChild ? children : adults), 27, WHITE, true);
         value.setGravity(Gravity.CENTER);
         if (isChild) {
             childValue = value;
@@ -276,15 +275,15 @@ public class MainActivity extends Activity {
         TextView plus = stepButton("+");
         minus.setOnClickListener(v -> changePeople(isChild, -1));
         plus.setOnClickListener(v -> changePeople(isChild, 1));
-        controls.addView(minus, new LinearLayout.LayoutParams(dp(48), dp(34)));
+        controls.addView(minus, new LinearLayout.LayoutParams(dp(42), dp(28)));
         TextView separator = text("|", 20, LINE, false);
         separator.setGravity(Gravity.CENTER);
-        controls.addView(separator, new LinearLayout.LayoutParams(dp(24), dp(34)));
-        controls.addView(plus, new LinearLayout.LayoutParams(dp(48), dp(34)));
+        controls.addView(separator, new LinearLayout.LayoutParams(dp(20), dp(28)));
+        controls.addView(plus, new LinearLayout.LayoutParams(dp(42), dp(28)));
         panel.addView(controls, matchWrap());
 
         if (isChild) {
-            TextView hint = text("Consumo crian\u00e7a: 50% do adulto", 10, MUTED, false);
+            TextView hint = text("Crian\u00e7a: 50% do adulto", 9, MUTED, false);
             hint.setGravity(Gravity.CENTER);
             panel.addView(hint, matchWrap());
         }
@@ -292,7 +291,7 @@ public class MainActivity extends Activity {
     }
 
     private TextView stepButton(String label) {
-        TextView button = text(label, 23, label.equals("+") ? ORANGE : WHITE, true);
+        TextView button = text(label, 20, label.equals("+") ? ORANGE : WHITE, true);
         button.setGravity(Gravity.CENTER);
         button.setBackground(rect(PANEL, LINE, 1, 4));
         return button;
@@ -312,13 +311,13 @@ public class MainActivity extends Activity {
         LinearLayout option = new LinearLayout(this);
         option.setOrientation(LinearLayout.VERTICAL);
         option.setGravity(Gravity.CENTER);
-        option.setPadding(dp(4), dp(8), dp(4), dp(8));
+        option.setPadding(dp(4), dp(5), dp(4), dp(5));
 
-        TextView label = text(hungerLabels[index], 14, WHITE, true);
+        TextView label = text(hungerLabels[index], 13, WHITE, true);
         label.setGravity(Gravity.CENTER);
-        TextView grams = text(hungerGrams[index] + "g", 22, index == hungerIndex ? ORANGE : WHITE, true);
+        TextView grams = text(hungerGrams[index] + "g", 20, index == hungerIndex ? ORANGE : WHITE, true);
         grams.setGravity(Gravity.CENTER);
-        TextView sub = text("por pessoa", 13, index == hungerIndex ? ORANGE : MUTED, false);
+        TextView sub = text("por pessoa", 12, index == hungerIndex ? ORANGE : MUTED, false);
         sub.setGravity(Gravity.CENTER);
         option.addView(label, matchWrap());
         option.addView(grams, matchWrap());
@@ -385,8 +384,7 @@ public class MainActivity extends Activity {
                 refreshProteinRows();
             });
 
-            TextView icon = text(proteinIcons[i], 18, WHITE, false);
-            icon.setGravity(Gravity.CENTER);
+            ProteinIconView icon = new ProteinIconView(this, i);
             row.addView(icon, new LinearLayout.LayoutParams(dp(32), -1));
             TextView name = text(proteins[i], 14, WHITE, false);
             row.addView(name, new LinearLayout.LayoutParams(0, -1, 1));
@@ -493,12 +491,12 @@ public class MainActivity extends Activity {
 
     private LinearLayout.LayoutParams cardParams() {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
-        params.setMargins(0, 0, 0, dp(8));
+        params.setMargins(0, 0, 0, dp(6));
         return params;
     }
 
     private LinearLayout.LayoutParams compactCardWeight(boolean addRightMargin) {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(78), 1);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(68), 1);
         params.setMargins(0, 0, addRightMargin ? dp(8) : 0, 0);
         return params;
     }
@@ -506,7 +504,7 @@ public class MainActivity extends Activity {
     private GridLayout.LayoutParams proteinCellParams(int index) {
         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
         params.width = 0;
-        params.height = dp(42);
+        params.height = dp(38);
         params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
         params.setMargins(0, 0, index % 2 == 0 ? dp(6) : 0, dp(6));
         return params;
@@ -556,6 +554,82 @@ public class MainActivity extends Activity {
             super.onDraw(canvas);
             canvas.drawRect(0, 0, getWidth(), getHeight(), track);
             canvas.drawRect(0, 0, getWidth() * percent, getHeight(), fill);
+        }
+    }
+
+    public static class ProteinIconView extends View {
+        private final int type;
+        private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+        public ProteinIconView(android.content.Context context, int type) {
+            super(context);
+            this.type = type;
+            paint.setColor(WHITE);
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(2.2f);
+            paint.setStrokeCap(Paint.Cap.SQUARE);
+            paint.setStrokeJoin(Paint.Join.MITER);
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+            float w = getWidth();
+            float h = getHeight();
+            float cx = w / 2f;
+            float cy = h / 2f;
+            if (type == 0) {
+                drawCow(canvas, cx, cy);
+            } else if (type == 1) {
+                drawSausage(canvas, cx, cy);
+            } else if (type == 2) {
+                drawChicken(canvas, cx, cy);
+            } else if (type == 3) {
+                drawPig(canvas, cx, cy);
+            } else {
+                drawHeart(canvas, cx, cy);
+            }
+        }
+
+        private void drawCow(Canvas canvas, float cx, float cy) {
+            canvas.drawRect(cx - 10, cy - 6, cx + 8, cy + 6, paint);
+            canvas.drawLine(cx - 6, cy + 6, cx - 6, cy + 11, paint);
+            canvas.drawLine(cx + 5, cy + 6, cx + 5, cy + 11, paint);
+            canvas.drawLine(cx + 8, cy - 3, cx + 13, cy - 6, paint);
+            canvas.drawLine(cx - 10, cy - 3, cx - 14, cy - 7, paint);
+            canvas.drawLine(cx - 2, cy - 6, cx - 2, cy - 10, paint);
+        }
+
+        private void drawSausage(Canvas canvas, float cx, float cy) {
+            canvas.drawOval(cx - 13, cy - 5, cx + 13, cy + 5, paint);
+            canvas.drawLine(cx - 15, cy, cx - 19, cy - 3, paint);
+            canvas.drawLine(cx + 15, cy, cx + 19, cy + 3, paint);
+            canvas.drawLine(cx - 4, cy - 5, cx + 3, cy + 5, paint);
+        }
+
+        private void drawChicken(Canvas canvas, float cx, float cy) {
+            canvas.drawOval(cx - 11, cy - 1, cx + 7, cy + 10, paint);
+            canvas.drawCircle(cx + 6, cy - 6, 4, paint);
+            canvas.drawLine(cx + 10, cy - 6, cx + 14, cy - 8, paint);
+            canvas.drawLine(cx - 3, cy + 10, cx - 7, cy + 14, paint);
+            canvas.drawLine(cx + 2, cy + 10, cx + 6, cy + 14, paint);
+        }
+
+        private void drawPig(Canvas canvas, float cx, float cy) {
+            canvas.drawOval(cx - 12, cy - 5, cx + 10, cy + 7, paint);
+            canvas.drawCircle(cx + 11, cy - 3, 4, paint);
+            canvas.drawLine(cx - 7, cy + 7, cx - 7, cy + 12, paint);
+            canvas.drawLine(cx + 4, cy + 7, cx + 4, cy + 12, paint);
+            canvas.drawLine(cx - 12, cy - 2, cx - 16, cy - 5, paint);
+        }
+
+        private void drawHeart(Canvas canvas, float cx, float cy) {
+            android.graphics.Path path = new android.graphics.Path();
+            path.moveTo(cx, cy + 10);
+            path.cubicTo(cx - 15, cy, cx - 12, cy - 12, cx - 3, cy - 8);
+            path.cubicTo(cx, cy - 15, cx + 15, cy - 10, cx + 10, cy + 1);
+            path.cubicTo(cx + 8, cy + 5, cx + 4, cy + 8, cx, cy + 10);
+            canvas.drawPath(path, paint);
         }
     }
 }
