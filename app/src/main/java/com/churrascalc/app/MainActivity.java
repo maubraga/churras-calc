@@ -319,6 +319,9 @@ public class MainActivity extends Activity {
         grams.setGravity(Gravity.CENTER);
         TextView sub = text("por pessoa", 12, index == hungerIndex ? ORANGE : MUTED, false);
         sub.setGravity(Gravity.CENTER);
+        label.setIncludeFontPadding(false);
+        grams.setIncludeFontPadding(false);
+        sub.setIncludeFontPadding(false);
         option.addView(label, matchWrap());
         option.addView(grams, matchWrap());
         option.addView(sub, matchWrap());
@@ -496,7 +499,7 @@ public class MainActivity extends Activity {
     }
 
     private LinearLayout.LayoutParams compactCardWeight(boolean addRightMargin) {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(68), 1);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(76), 1);
         params.setMargins(0, 0, addRightMargin ? dp(8) : 0, 0);
         return params;
     }
