@@ -77,7 +77,7 @@ public class MainActivity extends Activity {
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         content.setBackgroundColor(BLACK);
-        content.setPadding(dp(16), dp(12), dp(16), dp(14));
+        content.setPadding(dp(16), dp(10), dp(16), dp(8));
 
         ImageView logo = new ImageView(this);
         logo.setImageResource(getResources().getIdentifier("churracalc_logo", "drawable", getPackageName()));
@@ -143,10 +143,13 @@ public class MainActivity extends Activity {
         refreshProteinRows();
         content.addView(proteinGroup, matchWrap());
 
+        View buttonSpacer = new View(this);
+        content.addView(buttonSpacer, new LinearLayout.LayoutParams(-1, 0, 1));
+
         TextView calc = actionButton("CALCULAR CHURRASCO");
         calc.setOnClickListener(v -> showResult(calculate(), true));
         LinearLayout.LayoutParams calcParams = new LinearLayout.LayoutParams(-1, dp(50));
-        calcParams.setMargins(0, dp(10), 0, 0);
+        calcParams.setMargins(0, dp(6), 0, 0);
         content.addView(calc, calcParams);
 
         swap(content, animated);
@@ -320,12 +323,14 @@ public class MainActivity extends Activity {
         box.setOrientation(LinearLayout.VERTICAL);
         TextView titleView = text(title, 14, WHITE, true);
         TextView descriptionView = text(description, 12, MUTED, false);
+        titleView.setIncludeFontPadding(false);
+        descriptionView.setIncludeFontPadding(false);
         LinearLayout.LayoutParams descriptionParams = matchWrap();
         descriptionParams.setMargins(0, 0, 0, dp(3));
 
         box.addView(titleView, matchWrap());
         box.addView(descriptionView, descriptionParams);
-        box.addView(input, new LinearLayout.LayoutParams(-1, dp(42)));
+        box.addView(input, new LinearLayout.LayoutParams(-1, dp(40)));
         return box;
     }
 
@@ -443,7 +448,7 @@ public class MainActivity extends Activity {
     }
 
     private LinearLayout.LayoutParams peopleWeightParams(boolean addRightMargin) {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(66), 1);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(78), 1);
         params.setMargins(0, 0, addRightMargin ? dp(6) : 0, 0);
         return params;
     }
