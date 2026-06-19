@@ -95,8 +95,8 @@ public class MainActivity extends Activity {
         content.addView(sectionTitle("Pessoas"));
         adultInput = numberInput("Adultos", "10");
         childInput = numberInput("Crianças", "2");
-        content.addView(adultInput, blockParams());
-        content.addView(childInput, blockParams());
+        content.addView(numberField("Adultos", "Consumo integral por pessoa", adultInput), matchWrap());
+        content.addView(numberField("Crianças", "Conta como 50% do consumo adulto", childInput), matchWrap());
 
         content.addView(sectionTitle("Nível de fome"));
         hungerGroup = new LinearLayout(this);
@@ -310,6 +310,24 @@ public class MainActivity extends Activity {
         input.setPadding(dp(16), 0, dp(16), 0);
         input.setBackground(rect(PANEL, LINE, 1));
         return input;
+    }
+
+    private View numberField(String title, String description, EditText input) {
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams boxParams = new LinearLayout.LayoutParams(-1, -2);
+        boxParams.setMargins(0, 0, 0, dp(12));
+        box.setLayoutParams(boxParams);
+
+        TextView titleView = text(title, 16, WHITE, true);
+        TextView descriptionView = text(description, 12, MUTED, false);
+        LinearLayout.LayoutParams descriptionParams = matchWrap();
+        descriptionParams.setMargins(0, dp(1), 0, dp(6));
+
+        box.addView(titleView, matchWrap());
+        box.addView(descriptionView, descriptionParams);
+        box.addView(input, new LinearLayout.LayoutParams(-1, dp(56)));
+        return box;
     }
 
     private TextView sectionTitle(String value) {
