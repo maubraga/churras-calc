@@ -9,15 +9,10 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.text.InputFilter;
-import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.animation.DecelerateInterpolator;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -33,26 +28,29 @@ import java.util.Locale;
 public class MainActivity extends Activity {
     private static final int BLACK = Color.rgb(10, 10, 10);
     private static final int PANEL = Color.rgb(26, 26, 26);
+    private static final int PANEL_DARK = Color.rgb(18, 18, 18);
     private static final int ORANGE = Color.rgb(255, 122, 0);
     private static final int WHITE = Color.WHITE;
-    private static final int MUTED = Color.rgb(170, 170, 170);
-    private static final int LINE = Color.rgb(54, 54, 54);
+    private static final int MUTED = Color.rgb(178, 178, 178);
+    private static final int LINE = Color.rgb(58, 58, 58);
 
     private final String[] proteins = {
-            "Carne bovina", "Linguiça", "Frango", "Carne suína", "Coração"
+            "Carne bovina", "Lingui\u00e7a", "Frango", "Carne su\u00edna", "Cora\u00e7\u00e3o"
     };
+    private final String[] proteinIcons = {"\u25b1", "\u25ad", "\u2667", "\u25b1", "\u2661"};
     private final boolean[] selectedProteins = {true, true, true, false, false};
     private final int[] hungerGrams = {200, 450, 650};
     private final String[] hungerLabels = {"LEVE", "NORMAL", "FOME ALTA"};
-    private final String[] hungerSubtitles = {"200g por pessoa", "450g por pessoa", "650g por pessoa"};
 
     private FrameLayout root;
-    private EditText adultInput;
-    private EditText childInput;
+    private TextView adultValue;
+    private TextView childValue;
     private LinearLayout hungerGroup;
     private GridLayout proteinGroup;
     private TextView yesButton;
     private TextView noButton;
+    private int adults = 10;
+    private int children = 2;
     private int hungerIndex = 1;
     private boolean hasSides = true;
 
@@ -77,54 +75,67 @@ public class MainActivity extends Activity {
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         content.setBackgroundColor(BLACK);
-        content.setPadding(dp(16), dp(10), dp(16), dp(8));
+        content.setPadding(dp(16), dp(8), dp(16), dp(8));
 
         ImageView logo = new ImageView(this);
         logo.setImageResource(getResources().getIdentifier("churracalc_logo", "drawable", getPackageName()));
         logo.setAdjustViewBounds(true);
         logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(-1, dp(120));
-        logoParams.gravity = Gravity.CENTER_HORIZONTAL;
-        logoParams.setMargins(0, 0, 0, dp(2));
+        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(-1, dp(104));
         content.addView(logo, logoParams);
 
-        TextView subtitle = text("Calcule a quantidade ideal para seu churrasco", 14, MUTED, false);
+        TextView subtitle = text("Calcule a quantidade ideal para o seu churrasco", 15, MUTED, false);
         subtitle.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams subtitleParams = matchWrap();
         subtitleParams.setMargins(0, 0, 0, dp(6));
         content.addView(subtitle, subtitleParams);
 
-        content.addView(sectionTitle("Pessoas"));
-        adultInput = numberInput("Adultos", "10");
-        childInput = numberInput("Crianças", "2");
-        LinearLayout peopleRow = new LinearLayout(this);
-        peopleRow.setOrientation(LinearLayout.HORIZONTAL);
-        peopleRow.addView(numberField("Adultos", "Consumo integral", adultInput), peopleWeightParams(true));
-        peopleRow.addView(numberField("Crianças", "50% do adulto", childInput), peopleWeightParams(false));
-        content.addView(peopleRow, matchWrap());
+        LinearLayout peopleCard = sectionCard("\u25b3", "PESSOAS");
+        LinearLayout peopleBox = new LinearLayout(this);
+        peopleBox.setOrientation(LinearLayout.HORIZONTAL);
+        peopleBox.setGravity(Gravity.CENTER);
+        peopleBox.setPadding(dp(8), dp(8), dp(8), dp(8));
+        peopleBox.setBackground(rect(PANEL_DARK, LINE, 1, 4));
+        peopleBox.addView(counterPanel("ADULTOS", false), new LinearLayout.LayoutParams(0, dp(94), 1));
+        View divider = new View(this);
+        divider.setBackgroundColor(LINE);
+        LinearLayout.LayoutParams dividerParams = new LinearLayout.LayoutParams(dp(1), dp(82));
+        dividerParams.setMargins(dp(8), 0, dp(8), 0);
+        peopleBox.addView(divider, dividerParams);
+        peopleBox.addView(counterPanel("CRIAN\u00c7AS", true), new LinearLayout.LayoutParams(0, dp(94), 1));
+        peopleCard.addView(peopleBox, matchWrap());
+        content.addView(peopleCard, cardParams());
 
-        content.addView(sectionTitle("Nível de fome"));
+        LinearLayout hungerCard = sectionCard("\u2668", "N\u00cdVEL DE FOME");
         hungerGroup = new LinearLayout(this);
         hungerGroup.setOrientation(LinearLayout.HORIZONTAL);
         for (int i = 0; i < hungerLabels.length; i++) {
             final int index = i;
-            TextView option = optionButton(hungerLabels[i], hungerSubtitles[i], index == hungerIndex);
+            View option = hungerOption(index);
             option.setOnClickListener(v -> {
                 hungerIndex = index;
                 refreshHungerButtons();
             });
-            hungerGroup.addView(option, compactWeightParams(1, i < hungerLabels.length - 1));
+            hungerGroup.addView(option, compactCardWeight(i < hungerLabels.length - 1));
         }
-        content.addView(hungerGroup, matchWrap());
+        hungerCard.addView(hungerGroup, matchWrap());
+        content.addView(hungerCard, cardParams());
 
-        content.addView(sectionTitle("Acompanhamentos"));
+        LinearLayout sidesCard = sectionCard("\u26c4", "ACOMPANHAMENTOS");
         LinearLayout sidesRow = new LinearLayout(this);
         sidesRow.setOrientation(LinearLayout.HORIZONTAL);
         sidesRow.setGravity(Gravity.CENTER_VERTICAL);
-        TextView sidesLabel = label("Vai ter acompanhamentos?");
-        sidesRow.addView(sidesLabel, new LinearLayout.LayoutParams(0, dp(42), 1.25f));
+        LinearLayout sidesText = new LinearLayout(this);
+        sidesText.setOrientation(LinearLayout.VERTICAL);
+        TextView question = text("Vai ter\nacompanhamentos?", 17, WHITE, true);
+        TextView hint = text("Reduz 15% do consumo total", 11, MUTED, false);
+        sidesText.addView(question, matchWrap());
+        sidesText.addView(hint, matchWrap());
+        sidesRow.addView(sidesText, new LinearLayout.LayoutParams(0, dp(48), 1));
+        LinearLayout switchRow = new LinearLayout(this);
+        switchRow.setOrientation(LinearLayout.HORIZONTAL);
         yesButton = switchButton("SIM", hasSides);
-        noButton = switchButton("NÃO", !hasSides);
+        noButton = switchButton("N\u00c3O", !hasSides);
         yesButton.setOnClickListener(v -> {
             hasSides = true;
             refreshSideButtons();
@@ -133,31 +144,29 @@ public class MainActivity extends Activity {
             hasSides = false;
             refreshSideButtons();
         });
-        sidesRow.addView(yesButton, compactWeightParams(0.8f, true));
-        sidesRow.addView(noButton, compactWeightParams(0.8f, false));
-        content.addView(sidesRow, matchWrap());
+        switchRow.addView(yesButton, new LinearLayout.LayoutParams(0, dp(46), 1));
+        switchRow.addView(noButton, new LinearLayout.LayoutParams(0, dp(46), 1));
+        sidesRow.addView(switchRow, new LinearLayout.LayoutParams(0, dp(46), 1.05f));
+        sidesCard.addView(sidesRow, matchWrap());
+        content.addView(sidesCard, cardParams());
 
-        content.addView(sectionTitle("Selecione as proteínas"));
+        LinearLayout proteinCard = sectionCard("\u25ce", "SELECIONE AS PROTE\u00cdNAS");
         proteinGroup = new GridLayout(this);
         proteinGroup.setColumnCount(2);
         refreshProteinRows();
-        content.addView(proteinGroup, matchWrap());
+        proteinCard.addView(proteinGroup, matchWrap());
+        content.addView(proteinCard, cardParams());
 
-        View buttonSpacer = new View(this);
-        content.addView(buttonSpacer, new LinearLayout.LayoutParams(-1, 0, 1));
-
-        TextView calc = actionButton("CALCULAR CHURRASCO");
+        TextView calc = actionButton("\u25a3   CALCULAR CHURRASCO");
         calc.setOnClickListener(v -> showResult(calculate(), true));
-        LinearLayout.LayoutParams calcParams = new LinearLayout.LayoutParams(-1, dp(50));
-        calcParams.setMargins(0, dp(6), 0, 0);
+        LinearLayout.LayoutParams calcParams = new LinearLayout.LayoutParams(-1, dp(52));
+        calcParams.setMargins(0, dp(2), 0, 0);
         content.addView(calc, calcParams);
 
         swap(content, animated);
     }
 
     private Result calculate() {
-        int adults = parse(adultInput.getText().toString());
-        int children = parse(childInput.getText().toString());
         int grams = hungerGrams[hungerIndex];
         double totalKg = ((adults * grams) + (children * grams * 0.5)) / 1000.0;
         if (hasSides) {
@@ -221,6 +230,103 @@ public class MainActivity extends Activity {
         swap(content, animated);
     }
 
+    private LinearLayout sectionCard(String icon, String title) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(12), dp(8), dp(12), dp(10));
+        card.setBackground(rect(PANEL, LINE, 1, 6));
+
+        LinearLayout header = new LinearLayout(this);
+        header.setOrientation(LinearLayout.HORIZONTAL);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+        TextView iconView = text(icon, 21, ORANGE, false);
+        iconView.setGravity(Gravity.CENTER);
+        header.addView(iconView, new LinearLayout.LayoutParams(dp(28), dp(26)));
+        TextView titleView = text(title, 17, ORANGE, true);
+        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(-2, dp(28));
+        titleParams.setMargins(dp(8), 0, 0, 0);
+        header.addView(titleView, titleParams);
+        LinearLayout.LayoutParams headerParams = matchWrap();
+        headerParams.setMargins(0, 0, 0, dp(6));
+        card.addView(header, headerParams);
+        return card;
+    }
+
+    private View counterPanel(String title, boolean isChild) {
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setGravity(Gravity.CENTER);
+
+        TextView label = text(title, 15, WHITE, true);
+        label.setGravity(Gravity.CENTER);
+        panel.addView(label, matchWrap());
+
+        TextView value = text(String.valueOf(isChild ? children : adults), 31, WHITE, true);
+        value.setGravity(Gravity.CENTER);
+        if (isChild) {
+            childValue = value;
+        } else {
+            adultValue = value;
+        }
+        panel.addView(value, matchWrap());
+
+        LinearLayout controls = new LinearLayout(this);
+        controls.setGravity(Gravity.CENTER);
+        TextView minus = stepButton("\u2212");
+        TextView plus = stepButton("+");
+        minus.setOnClickListener(v -> changePeople(isChild, -1));
+        plus.setOnClickListener(v -> changePeople(isChild, 1));
+        controls.addView(minus, new LinearLayout.LayoutParams(dp(48), dp(34)));
+        TextView separator = text("|", 20, LINE, false);
+        separator.setGravity(Gravity.CENTER);
+        controls.addView(separator, new LinearLayout.LayoutParams(dp(24), dp(34)));
+        controls.addView(plus, new LinearLayout.LayoutParams(dp(48), dp(34)));
+        panel.addView(controls, matchWrap());
+
+        if (isChild) {
+            TextView hint = text("Consumo crian\u00e7a: 50% do adulto", 10, MUTED, false);
+            hint.setGravity(Gravity.CENTER);
+            panel.addView(hint, matchWrap());
+        }
+        return panel;
+    }
+
+    private TextView stepButton(String label) {
+        TextView button = text(label, 23, label.equals("+") ? ORANGE : WHITE, true);
+        button.setGravity(Gravity.CENTER);
+        button.setBackground(rect(PANEL, LINE, 1, 4));
+        return button;
+    }
+
+    private void changePeople(boolean child, int delta) {
+        if (child) {
+            children = Math.max(0, Math.min(99, children + delta));
+            childValue.setText(String.valueOf(children));
+        } else {
+            adults = Math.max(0, Math.min(99, adults + delta));
+            adultValue.setText(String.valueOf(adults));
+        }
+    }
+
+    private View hungerOption(int index) {
+        LinearLayout option = new LinearLayout(this);
+        option.setOrientation(LinearLayout.VERTICAL);
+        option.setGravity(Gravity.CENTER);
+        option.setPadding(dp(4), dp(8), dp(4), dp(8));
+
+        TextView label = text(hungerLabels[index], 14, WHITE, true);
+        label.setGravity(Gravity.CENTER);
+        TextView grams = text(hungerGrams[index] + "g", 22, index == hungerIndex ? ORANGE : WHITE, true);
+        grams.setGravity(Gravity.CENTER);
+        TextView sub = text("por pessoa", 13, index == hungerIndex ? ORANGE : MUTED, false);
+        sub.setGravity(Gravity.CENTER);
+        option.addView(label, matchWrap());
+        option.addView(grams, matchWrap());
+        option.addView(sub, matchWrap());
+        styleHungerOption(option, index == hungerIndex);
+        return option;
+    }
+
     private View resultRow(ResultItem item) {
         LinearLayout box = new LinearLayout(this);
         box.setOrientation(LinearLayout.VERTICAL);
@@ -250,8 +356,13 @@ public class MainActivity extends Activity {
 
     private void refreshHungerButtons() {
         for (int i = 0; i < hungerGroup.getChildCount(); i++) {
-            TextView view = (TextView) hungerGroup.getChildAt(i);
-            styleOption(view, i == hungerIndex);
+            LinearLayout option = (LinearLayout) hungerGroup.getChildAt(i);
+            TextView grams = (TextView) option.getChildAt(1);
+            TextView sub = (TextView) option.getChildAt(2);
+            boolean selected = i == hungerIndex;
+            grams.setTextColor(selected ? ORANGE : WHITE);
+            sub.setTextColor(selected ? ORANGE : MUTED);
+            styleHungerOption(option, selected);
         }
     }
 
@@ -264,96 +375,49 @@ public class MainActivity extends Activity {
         proteinGroup.removeAllViews();
         for (int i = 0; i < proteins.length; i++) {
             final int index = i;
-            TextView row = text((selectedProteins[i] ? "■  " : "□  ") + proteins[i], 14, WHITE, false);
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
             row.setGravity(Gravity.CENTER_VERTICAL);
             row.setPadding(dp(10), 0, dp(8), 0);
-            row.setBackground(rect(PANEL, LINE, 1));
+            row.setBackground(rect(PANEL_DARK, LINE, 1, 4));
             row.setOnClickListener(v -> {
                 selectedProteins[index] = !selectedProteins[index];
                 refreshProteinRows();
             });
+
+            TextView icon = text(proteinIcons[i], 18, WHITE, false);
+            icon.setGravity(Gravity.CENTER);
+            row.addView(icon, new LinearLayout.LayoutParams(dp(32), -1));
+            TextView name = text(proteins[i], 14, WHITE, false);
+            row.addView(name, new LinearLayout.LayoutParams(0, -1, 1));
+            TextView check = text(selectedProteins[i] ? "\u2713" : "", 20, BLACK, true);
+            check.setGravity(Gravity.CENTER);
+            check.setBackground(rect(selectedProteins[i] ? ORANGE : PANEL_DARK, selectedProteins[i] ? ORANGE : MUTED, 1, 0));
+            row.addView(check, new LinearLayout.LayoutParams(dp(21), dp(21)));
             proteinGroup.addView(row, proteinCellParams(i));
         }
     }
 
-    private TextView optionButton(String title, String subtitle, boolean selected) {
-        TextView view = text(title + "\n" + subtitle, 12, WHITE, true);
-        view.setGravity(Gravity.CENTER);
-        view.setPadding(dp(5), 0, dp(5), 0);
-        styleOption(view, selected);
-        return view;
-    }
-
-    private void styleOption(TextView view, boolean selected) {
-        view.setTextColor(selected ? BLACK : WHITE);
-        view.setBackground(rect(selected ? ORANGE : PANEL, selected ? ORANGE : LINE, 1));
-    }
-
     private TextView switchButton(String label, boolean selected) {
-        TextView button = text(label, 15, selected ? BLACK : WHITE, true);
+        TextView button = text(label, 16, selected ? WHITE : WHITE, true);
         button.setGravity(Gravity.CENTER);
         styleSwitch(button, selected);
         return button;
     }
 
     private void styleSwitch(TextView view, boolean selected) {
-        view.setTextColor(selected ? BLACK : WHITE);
-        view.setBackground(rect(selected ? ORANGE : PANEL, selected ? ORANGE : LINE, 1));
+        view.setTextColor(WHITE);
+        view.setBackground(rect(selected ? ORANGE : PANEL_DARK, selected ? ORANGE : LINE, 1, 0));
     }
 
-    private EditText numberInput(String hint, String value) {
-        EditText input = new EditText(this);
-        input.setText(value);
-        input.setHint(hint);
-        input.setTextColor(WHITE);
-        input.setHintTextColor(MUTED);
-        input.setTextSize(16);
-        input.setSingleLine(true);
-        input.setSelectAllOnFocus(true);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        input.setImeOptions(EditorInfo.IME_ACTION_NEXT);
-        input.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
-        input.setPadding(dp(10), 0, dp(10), 0);
-        input.setBackground(rect(PANEL, LINE, 1));
-        return input;
-    }
-
-    private View numberField(String title, String description, EditText input) {
-        LinearLayout box = new LinearLayout(this);
-        box.setOrientation(LinearLayout.VERTICAL);
-        TextView titleView = text(title, 14, WHITE, true);
-        TextView descriptionView = text(description, 12, MUTED, false);
-        titleView.setIncludeFontPadding(false);
-        descriptionView.setIncludeFontPadding(false);
-        LinearLayout.LayoutParams descriptionParams = matchWrap();
-        descriptionParams.setMargins(0, 0, 0, dp(3));
-
-        box.addView(titleView, matchWrap());
-        box.addView(descriptionView, descriptionParams);
-        box.addView(input, new LinearLayout.LayoutParams(-1, dp(40)));
-        return box;
-    }
-
-    private TextView sectionTitle(String value) {
-        TextView view = text(value, 12, ORANGE, true);
-        view.setAllCaps(true);
-        LinearLayout.LayoutParams params = matchWrap();
-        params.setMargins(0, dp(8), 0, dp(4));
-        view.setLayoutParams(params);
-        return view;
-    }
-
-    private TextView label(String value) {
-        TextView view = text(value, 16, WHITE, false);
-        view.setGravity(Gravity.CENTER_VERTICAL);
-        view.setPadding(0, 0, dp(8), 0);
-        return view;
+    private void styleHungerOption(LinearLayout view, boolean selected) {
+        view.setBackground(rect(PANEL_DARK, selected ? ORANGE : LINE, selected ? 2 : 1, 5));
     }
 
     private TextView actionButton(String value) {
         TextView button = text(value, 16, WHITE, true);
         button.setGravity(Gravity.CENTER);
-        button.setBackground(rect(ORANGE, ORANGE, 0));
+        button.setBackground(rect(ORANGE, ORANGE, 0, 3));
         return button;
     }
 
@@ -368,11 +432,11 @@ public class MainActivity extends Activity {
         return view;
     }
 
-    private GradientDrawable rect(int fill, int stroke, int strokeDp) {
+    private GradientDrawable rect(int fill, int stroke, int strokeDp, int radiusDp) {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setShape(GradientDrawable.RECTANGLE);
         drawable.setColor(fill);
-        drawable.setCornerRadius(0);
+        drawable.setCornerRadius(dp(radiusDp));
         if (strokeDp > 0) {
             drawable.setStroke(dp(strokeDp), stroke);
         }
@@ -401,14 +465,6 @@ public class MainActivity extends Activity {
                 }).start();
     }
 
-    private int parse(String value) {
-        try {
-            return Math.max(0, Integer.parseInt(value.trim()));
-        } catch (NumberFormatException exception) {
-            return 0;
-        }
-    }
-
     private String formatTotal(double kg) {
         return oneDecimal().format(kg).toUpperCase(Locale.ROOT) + " KG";
     }
@@ -435,28 +491,22 @@ public class MainActivity extends Activity {
         return new LinearLayout.LayoutParams(-1, -2);
     }
 
-    private LinearLayout.LayoutParams blockParams() {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, dp(56));
-        params.setMargins(0, 0, 0, dp(10));
+    private LinearLayout.LayoutParams cardParams() {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
+        params.setMargins(0, 0, 0, dp(8));
         return params;
     }
 
-    private LinearLayout.LayoutParams compactWeightParams(float weight, boolean addRightMargin) {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(42), weight);
-        params.setMargins(0, 0, addRightMargin ? dp(6) : 0, 0);
-        return params;
-    }
-
-    private LinearLayout.LayoutParams peopleWeightParams(boolean addRightMargin) {
+    private LinearLayout.LayoutParams compactCardWeight(boolean addRightMargin) {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(78), 1);
-        params.setMargins(0, 0, addRightMargin ? dp(6) : 0, 0);
+        params.setMargins(0, 0, addRightMargin ? dp(8) : 0, 0);
         return params;
     }
 
     private GridLayout.LayoutParams proteinCellParams(int index) {
         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
         params.width = 0;
-        params.height = dp(38);
+        params.height = dp(42);
         params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
         params.setMargins(0, 0, index % 2 == 0 ? dp(6) : 0, dp(6));
         return params;
@@ -508,5 +558,4 @@ public class MainActivity extends Activity {
             canvas.drawRect(0, 0, getWidth() * percent, getHeight(), fill);
         }
     }
-
 }
