@@ -2,6 +2,12 @@ plugins {
     id "com.android.application"
 }
 
+def signingPropsFile = rootProject.file("keystore/release-signing.properties")
+def signingProps = new Properties()
+if (signingPropsFile.exists()) {
+    signingProps.load(new FileInputStream(signingPropsFile))
+}
+
 android {
     namespace "com.churrascalc.app"
     compileSdk 35
@@ -12,5 +18,24 @@ android {
         targetSdk 35
         versionCode 1
         versionName "1.0"
+    }
+
+    signingConfigs {
+        release {
+            if (signingPropsFile.exists()) {
+                storeFile rootProject.file(signingProps["storeFile"])
+                storePassword signingProps["storePassword"]
+                keyAlias signingProps["keyAlias"]
+                keyPassword signingProps["keyPassword"]
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingPropsFile.exists() ? signingConfigs.release : null
+            minifyEnabled false
+            shrinkResources false
+        }
     }
 }
