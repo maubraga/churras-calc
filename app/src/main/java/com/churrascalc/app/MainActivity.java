@@ -466,15 +466,15 @@ public class MainActivity extends Activity {
     }
 
     private String formatKg(double kg) {
-        return twoDecimals().format(kg) + " kg";
+        return threeDecimals().format(kg) + " kg";
     }
 
     private DecimalFormat oneDecimal() {
         return new DecimalFormat("0.0", symbols());
     }
 
-    private DecimalFormat twoDecimals() {
-        return new DecimalFormat("0.00", symbols());
+    private DecimalFormat threeDecimals() {
+        return new DecimalFormat("0.000", symbols());
     }
 
     private DecimalFormatSymbols symbols() {
