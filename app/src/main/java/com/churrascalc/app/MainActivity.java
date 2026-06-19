@@ -77,17 +77,12 @@ public class MainActivity extends Activity {
         content.setPadding(dp(16), dp(8), dp(16), dp(8));
 
         ImageView logo = new ImageView(this);
-        logo.setImageResource(getResources().getIdentifier("churracalc_logo", "drawable", getPackageName()));
+        logo.setImageResource(getResources().getIdentifier("churracalc_logo_horizontal", "drawable", getPackageName()));
         logo.setAdjustViewBounds(true);
         logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(-1, dp(82));
+        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(-1, dp(100));
+        logoParams.setMargins(0, 0, 0, dp(6));
         content.addView(logo, logoParams);
-
-        TextView subtitle = text("Calcule a quantidade ideal para o seu churrasco", 15, MUTED, false);
-        subtitle.setGravity(Gravity.CENTER);
-        LinearLayout.LayoutParams subtitleParams = matchWrap();
-        subtitleParams.setMargins(0, 0, 0, dp(5));
-        content.addView(subtitle, subtitleParams);
 
         LinearLayout peopleCard = sectionCard("\u25b3", "PESSOAS");
         LinearLayout peopleBox = new LinearLayout(this);
