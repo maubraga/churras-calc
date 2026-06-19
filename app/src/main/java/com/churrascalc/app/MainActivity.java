@@ -99,8 +99,8 @@ public class MainActivity extends Activity {
         childInput = numberInput("Crianças", "2");
         LinearLayout peopleRow = new LinearLayout(this);
         peopleRow.setOrientation(LinearLayout.HORIZONTAL);
-        peopleRow.addView(numberField("Adultos", "Consumo integral", adultInput), compactWeightParams(1, true));
-        peopleRow.addView(numberField("Crianças", "50% do adulto", childInput), compactWeightParams(1, false));
+        peopleRow.addView(numberField("Adultos", "Consumo integral", adultInput), peopleWeightParams(true));
+        peopleRow.addView(numberField("Crianças", "50% do adulto", childInput), peopleWeightParams(false));
         content.addView(peopleRow, matchWrap());
 
         content.addView(sectionTitle("Nível de fome"));
@@ -438,6 +438,12 @@ public class MainActivity extends Activity {
 
     private LinearLayout.LayoutParams compactWeightParams(float weight, boolean addRightMargin) {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(42), weight);
+        params.setMargins(0, 0, addRightMargin ? dp(6) : 0, 0);
+        return params;
+    }
+
+    private LinearLayout.LayoutParams peopleWeightParams(boolean addRightMargin) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(66), 1);
         params.setMargins(0, 0, addRightMargin ? dp(6) : 0, 0);
         return params;
     }
