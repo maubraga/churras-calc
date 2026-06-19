@@ -18,9 +18,9 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
     private EditText adultInput;
     private EditText childInput;
     private LinearLayout hungerGroup;
-    private LinearLayout proteinGroup;
+    private GridLayout proteinGroup;
     private TextView yesButton;
     private TextView noButton;
     private int hungerIndex = 1;
@@ -68,39 +68,38 @@ public class MainActivity extends Activity {
     }
 
     private void showCalculator(boolean animated) {
-        ScrollView scroll = new ScrollView(this);
-        scroll.setFillViewport(false);
-        scroll.setBackgroundColor(BLACK);
-
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dp(22), dp(22), dp(22), dp(28));
-        scroll.addView(content, new ScrollView.LayoutParams(-1, -2));
+        content.setBackgroundColor(BLACK);
+        content.setPadding(dp(16), dp(12), dp(16), dp(14));
 
         ImageView logo = new ImageView(this);
         logo.setImageResource(getResources().getIdentifier("churracalc_logo", "drawable", getPackageName()));
         logo.setAdjustViewBounds(true);
         logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(-1, dp(210));
+        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(-1, dp(120));
         logoParams.gravity = Gravity.CENTER_HORIZONTAL;
-        logoParams.setMargins(0, 0, 0, dp(8));
+        logoParams.setMargins(0, 0, 0, dp(2));
         content.addView(logo, logoParams);
 
         TextView subtitle = text("Calcule a quantidade ideal para seu churrasco", 14, MUTED, false);
         subtitle.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams subtitleParams = matchWrap();
-        subtitleParams.setMargins(0, dp(4), 0, dp(24));
+        subtitleParams.setMargins(0, 0, 0, dp(6));
         content.addView(subtitle, subtitleParams);
 
         content.addView(sectionTitle("Pessoas"));
         adultInput = numberInput("Adultos", "10");
         childInput = numberInput("Crianças", "2");
-        content.addView(numberField("Adultos", "Consumo integral por pessoa", adultInput), matchWrap());
-        content.addView(numberField("Crianças", "Conta como 50% do consumo adulto", childInput), matchWrap());
+        LinearLayout peopleRow = new LinearLayout(this);
+        peopleRow.setOrientation(LinearLayout.HORIZONTAL);
+        peopleRow.addView(numberField("Adultos", "Consumo integral", adultInput), compactWeightParams(1, true));
+        peopleRow.addView(numberField("Crianças", "50% do adulto", childInput), compactWeightParams(1, false));
+        content.addView(peopleRow, matchWrap());
 
         content.addView(sectionTitle("Nível de fome"));
         hungerGroup = new LinearLayout(this);
-        hungerGroup.setOrientation(LinearLayout.VERTICAL);
+        hungerGroup.setOrientation(LinearLayout.HORIZONTAL);
         for (int i = 0; i < hungerLabels.length; i++) {
             final int index = i;
             TextView option = optionButton(hungerLabels[i], hungerSubtitles[i], index == hungerIndex);
@@ -108,15 +107,16 @@ public class MainActivity extends Activity {
                 hungerIndex = index;
                 refreshHungerButtons();
             });
-            hungerGroup.addView(option, blockParams());
+            hungerGroup.addView(option, compactWeightParams(1, i < hungerLabels.length - 1));
         }
         content.addView(hungerGroup, matchWrap());
 
         content.addView(sectionTitle("Acompanhamentos"));
-        content.addView(label("Vai ter acompanhamentos?"), matchWrap());
         LinearLayout sidesRow = new LinearLayout(this);
         sidesRow.setOrientation(LinearLayout.HORIZONTAL);
-        sidesRow.setPadding(0, dp(8), 0, dp(6));
+        sidesRow.setGravity(Gravity.CENTER_VERTICAL);
+        TextView sidesLabel = label("Vai ter acompanhamentos?");
+        sidesRow.addView(sidesLabel, new LinearLayout.LayoutParams(0, dp(42), 1.25f));
         yesButton = switchButton("SIM", hasSides);
         noButton = switchButton("NÃO", !hasSides);
         yesButton.setOnClickListener(v -> {
@@ -127,23 +127,23 @@ public class MainActivity extends Activity {
             hasSides = false;
             refreshSideButtons();
         });
-        sidesRow.addView(yesButton, weightParams(1));
-        sidesRow.addView(noButton, weightParams(1));
+        sidesRow.addView(yesButton, compactWeightParams(0.8f, true));
+        sidesRow.addView(noButton, compactWeightParams(0.8f, false));
         content.addView(sidesRow, matchWrap());
 
         content.addView(sectionTitle("Selecione as proteínas"));
-        proteinGroup = new LinearLayout(this);
-        proteinGroup.setOrientation(LinearLayout.VERTICAL);
+        proteinGroup = new GridLayout(this);
+        proteinGroup.setColumnCount(2);
         refreshProteinRows();
         content.addView(proteinGroup, matchWrap());
 
         TextView calc = actionButton("CALCULAR CHURRASCO");
         calc.setOnClickListener(v -> showResult(calculate(), true));
-        LinearLayout.LayoutParams calcParams = new LinearLayout.LayoutParams(-1, dp(58));
-        calcParams.setMargins(0, dp(24), 0, 0);
+        LinearLayout.LayoutParams calcParams = new LinearLayout.LayoutParams(-1, dp(50));
+        calcParams.setMargins(0, dp(10), 0, 0);
         content.addView(calc, calcParams);
 
-        swap(scroll, animated);
+        swap(content, animated);
     }
 
     private Result calculate() {
@@ -183,23 +183,20 @@ public class MainActivity extends Activity {
     }
 
     private void showResult(Result result, boolean animated) {
-        ScrollView scroll = new ScrollView(this);
-        scroll.setBackgroundColor(BLACK);
-
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dp(22), dp(28), dp(22), dp(28));
-        scroll.addView(content, new ScrollView.LayoutParams(-1, -2));
+        content.setBackgroundColor(BLACK);
+        content.setPadding(dp(18), dp(20), dp(18), dp(18));
 
         TextView eyebrow = text("TOTAL DE CARNE", 13, MUTED, true);
         eyebrow.setGravity(Gravity.CENTER);
         content.addView(eyebrow, matchWrap());
 
-        TextView total = text(formatTotal(result.totalKg), 50, WHITE, true);
+        TextView total = text(formatTotal(result.totalKg), 44, WHITE, true);
         total.setGravity(Gravity.CENTER);
         total.setLetterSpacing(0.02f);
         LinearLayout.LayoutParams totalParams = matchWrap();
-        totalParams.setMargins(0, dp(8), 0, dp(20));
+        totalParams.setMargins(0, dp(4), 0, dp(12));
         content.addView(total, totalParams);
 
         for (ResultItem item : result.items) {
@@ -208,18 +205,18 @@ public class MainActivity extends Activity {
 
         TextView again = actionButton("CALCULAR NOVAMENTE");
         again.setOnClickListener(v -> showCalculator(true));
-        LinearLayout.LayoutParams againParams = new LinearLayout.LayoutParams(-1, dp(56));
-        againParams.setMargins(0, dp(26), 0, 0);
+        LinearLayout.LayoutParams againParams = new LinearLayout.LayoutParams(-1, dp(50));
+        againParams.setMargins(0, dp(14), 0, 0);
         content.addView(again, againParams);
 
-        swap(scroll, animated);
+        swap(content, animated);
     }
 
     private View resultRow(ResultItem item) {
         LinearLayout box = new LinearLayout(this);
         box.setOrientation(LinearLayout.VERTICAL);
         box.setBackgroundColor(BLACK);
-        box.setPadding(0, dp(15), 0, dp(15));
+        box.setPadding(0, dp(8), 0, dp(8));
 
         View dividerTop = new View(this);
         dividerTop.setBackgroundColor(LINE);
@@ -228,7 +225,7 @@ public class MainActivity extends Activity {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(0, dp(12), 0, dp(10));
+        row.setPadding(0, dp(7), 0, dp(7));
 
         TextView name = text(item.name, 16, WHITE, false);
         TextView kg = text(formatKg(item.kg), 18, WHITE, true);
@@ -258,22 +255,22 @@ public class MainActivity extends Activity {
         proteinGroup.removeAllViews();
         for (int i = 0; i < proteins.length; i++) {
             final int index = i;
-            TextView row = text((selectedProteins[i] ? "■  " : "□  ") + proteins[i], 17, WHITE, false);
+            TextView row = text((selectedProteins[i] ? "■  " : "□  ") + proteins[i], 14, WHITE, false);
             row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setPadding(dp(16), 0, dp(16), 0);
+            row.setPadding(dp(10), 0, dp(8), 0);
             row.setBackground(rect(PANEL, LINE, 1));
             row.setOnClickListener(v -> {
                 selectedProteins[index] = !selectedProteins[index];
                 refreshProteinRows();
             });
-            proteinGroup.addView(row, blockParams());
+            proteinGroup.addView(row, proteinCellParams(i));
         }
     }
 
     private TextView optionButton(String title, String subtitle, boolean selected) {
-        TextView view = text(title + "\n" + subtitle, 15, WHITE, true);
-        view.setGravity(Gravity.CENTER_VERTICAL);
-        view.setPadding(dp(16), 0, dp(16), 0);
+        TextView view = text(title + "\n" + subtitle, 12, WHITE, true);
+        view.setGravity(Gravity.CENTER);
+        view.setPadding(dp(5), 0, dp(5), 0);
         styleOption(view, selected);
         return view;
     }
@@ -301,13 +298,13 @@ public class MainActivity extends Activity {
         input.setHint(hint);
         input.setTextColor(WHITE);
         input.setHintTextColor(MUTED);
-        input.setTextSize(17);
+        input.setTextSize(16);
         input.setSingleLine(true);
         input.setSelectAllOnFocus(true);
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
         input.setImeOptions(EditorInfo.IME_ACTION_NEXT);
         input.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
-        input.setPadding(dp(16), 0, dp(16), 0);
+        input.setPadding(dp(10), 0, dp(10), 0);
         input.setBackground(rect(PANEL, LINE, 1));
         return input;
     }
@@ -315,33 +312,30 @@ public class MainActivity extends Activity {
     private View numberField(String title, String description, EditText input) {
         LinearLayout box = new LinearLayout(this);
         box.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams boxParams = new LinearLayout.LayoutParams(-1, -2);
-        boxParams.setMargins(0, 0, 0, dp(12));
-        box.setLayoutParams(boxParams);
-
-        TextView titleView = text(title, 16, WHITE, true);
+        TextView titleView = text(title, 14, WHITE, true);
         TextView descriptionView = text(description, 12, MUTED, false);
         LinearLayout.LayoutParams descriptionParams = matchWrap();
-        descriptionParams.setMargins(0, dp(1), 0, dp(6));
+        descriptionParams.setMargins(0, 0, 0, dp(3));
 
         box.addView(titleView, matchWrap());
         box.addView(descriptionView, descriptionParams);
-        box.addView(input, new LinearLayout.LayoutParams(-1, dp(56)));
+        box.addView(input, new LinearLayout.LayoutParams(-1, dp(42)));
         return box;
     }
 
     private TextView sectionTitle(String value) {
-        TextView view = text(value, 13, ORANGE, true);
+        TextView view = text(value, 12, ORANGE, true);
         view.setAllCaps(true);
         LinearLayout.LayoutParams params = matchWrap();
-        params.setMargins(0, dp(18), 0, dp(8));
+        params.setMargins(0, dp(8), 0, dp(4));
         view.setLayoutParams(params);
         return view;
     }
 
     private TextView label(String value) {
         TextView view = text(value, 16, WHITE, false);
-        view.setPadding(0, 0, 0, dp(2));
+        view.setGravity(Gravity.CENTER_VERTICAL);
+        view.setPadding(0, 0, dp(8), 0);
         return view;
     }
 
@@ -433,6 +427,21 @@ public class MainActivity extends Activity {
     private LinearLayout.LayoutParams blockParams() {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, dp(56));
         params.setMargins(0, 0, 0, dp(10));
+        return params;
+    }
+
+    private LinearLayout.LayoutParams compactWeightParams(float weight, boolean addRightMargin) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(42), weight);
+        params.setMargins(0, 0, addRightMargin ? dp(6) : 0, 0);
+        return params;
+    }
+
+    private GridLayout.LayoutParams proteinCellParams(int index) {
+        GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+        params.width = 0;
+        params.height = dp(38);
+        params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+        params.setMargins(0, 0, index % 2 == 0 ? dp(6) : 0, dp(6));
         return params;
     }
 
